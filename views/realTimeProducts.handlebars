@@ -1,0 +1,93 @@
+<div>
+    <h1>Crear Producto tiempo real</h1>
+    <form id="crearProdFormRealTime">
+
+        <label>Titulo</label>
+        <input class="productInput" name="title">
+        <br/>
+
+        <label>Descripcion</label>
+        <input class="productInput" name="description">
+        <br/>
+
+        <label>Codigo</label>
+        <input class="productInput" name="code">
+        <br/>
+
+        <label>Precio</label>
+        <input class="productInput" name="price">
+        <br/>
+        
+        <label>Stock</label>
+        <input class="productInput" name="stock">
+        <br/>
+
+        <label>Categoria</label>
+        <input class="productInput" name="category">
+        <br/>
+
+        <input type="submit">
+    </form>
+    <table>
+    <thead>
+        <tr>
+            <td>Nombre</td>
+            <td>Descripcion</td>
+            
+        </tr>
+    </thead>
+    <tbody id="productList">
+        {{#each products}}
+        <tr>
+            <td>{{this.title}}</td>
+            <td>{{this.description}}</td>
+            
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+
+
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socketClient = io()
+    socketClient.on('sendProducts', (prods) => {
+        updateProds(prods)
+    })
+
+    const updateProds = (prods) => {
+        let productsListHTML = document.getElementById('productList')
+
+        productsListHTML.innerHTML = ''
+        prods.forEach((product) => {
+            productsListHTML.innerHTML += `
+            <tr>
+                <td>${product.title}</td>
+                <td>${product.description}</td>
+            </tr>
+        `
+        })
+    }
+
+    const formRT = document.getElementById('crearProdFormRealTime');
+
+formRT.addEventListener('submit', e => {
+    e.preventDefault();
+    const data = new FormData(formRT);
+    const prod= {};
+    data.forEach((value, key) => prod[key] = value);
+
+    socketClient.emit('addProduct', prod)
+
+    formRT.reset()
+
+})
+
+</script>
+
+
+
+
